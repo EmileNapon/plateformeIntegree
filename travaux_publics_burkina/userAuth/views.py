@@ -1,9 +1,11 @@
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from .models import User
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UpdateUserSerializer
 
 
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -32,12 +34,24 @@ def list_users(request):
     serializer = UserSerializer(users, many=True)  # Sérialiser les données
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+class UpdateUserView(generics.UpdateAPIView):
+    serializer_class = UpdateUserSerializer
+    # permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]  # ✅ Ajout de JSONParser
+    def get_object(self):
+        user_id = self.kwargs.get("pk")
+        return get_object_or_404(User, pk=user_id)
 # Vue pour lister les autorites 
 class AutoritesListView(generics.ListAPIView):
     queryset = User.objects.filter(role='autority')  
     serializer_class = UserSerializer
 
+
+
+class AutoriteDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.filter(role='autority')
+    serializer_class = UserSerializer
+    lookup_field = 'id'  
 
 # Vue pour lister les prestataires 
 class PrestatairesListView(generics.ListAPIView):

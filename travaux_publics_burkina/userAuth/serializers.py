@@ -87,3 +87,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'is_verified': user.is_verified
         })
         return data
+# Serializer pour la mise à jour d'un utilisateur
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+    
+        fields = [
+            'first_name', 'last_name', 'role', 'phone_number', 'profile_pic', 'is_verified',
+            'profession', 'enabled_notifications', 'name_organization',
+            'nom_entreprise', 'secteur_activite',
+        ]
+        extra_kwargs = {
+            'role': {'read_only': True},  # On ne permet pas de changer le rôle
+        }
